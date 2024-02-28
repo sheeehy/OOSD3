@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class Processes {
+public class Driver {
     public static void main(String[] args) {
 
         String website = "jacksheehy.live"; // Define "jacksheehy.live" as the website to ping
@@ -27,10 +27,11 @@ public class Processes {
 
             // create a Callable to read the output of the process
             // Passes the input stream of the process as an argument
+            // Use <List<String>> because the output is a list of strings
 
             Callable<List<String>> processReader = new ProcessReader(process.getInputStream());
 
-            // Submit the Callable to the ExecutorService
+            // Call submit on servicePool to return the Future object
             Future<List<String>> future = servicePool.submit(processReader);
 
             // read the results from the Future object and store it in result
@@ -46,23 +47,24 @@ public class Processes {
         }
     }
 
-    // A static class implementing the Callable interface.
-
+    // A static class implementing the Callable interface. This class is used to
+    // read the output of the process
     static class ProcessReader implements Callable<List<String>> {
         private final BufferedReader reader;
 
-        public ProcessReader(InputStream inputStream) {
+        public ProcessReader(InputStream inputStream) { // Constructor to create a new ProcessReader
             this.reader = new BufferedReader(new InputStreamReader(inputStream));
         }
 
+        // Override the call method to read the output of the process
         @Override
         public List<String> call() throws IOException {
-            List<String> lines = new ArrayList<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
+            List<String> lines = new ArrayList<>(); // Create a new list to store the output
+            String line; // Create a string to store each line of the output
+            while ((line = reader.readLine()) != null) { // While there are still lines to read
+                lines.add(line); // Add the line to the list
             }
-            return lines;
+            return lines; // Return the list
         }
     }
 }
